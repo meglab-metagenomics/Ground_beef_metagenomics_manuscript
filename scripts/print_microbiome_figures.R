@@ -37,37 +37,6 @@ for( v in 1:length(microbiome_exploratory_analyses) ) {
 }
 
 
-######################################
-## Exploratory Analyses: Ordination ##
-######################################
-
-for( v in 1:length(microbiome_exploratory_analyses) ) {
-  # Microbiome NMDS
-  meg_ordination(data_list = microbiome_analytic_data,
-                 data_names = microbiome_analytic_names,
-                 metadata = microbiome_metadata,
-                 sample_var = sample_column_id,
-                 hull_var = microbiome_exploratory_analyses[[v]]$exploratory_var,
-                 analysis_subset=microbiome_exploratory_analyses[[v]]$subsets,
-                 outdir = paste(graph_output_dir, 'Microbiome', microbiome_exploratory_analyses[[v]]$name,
-                                sep='/', collapse=''),
-                 data_type = 'Microbiome',
-                 method = 'NMDS',
-                 factor_order= microbiome_exploratory_analyses[[v]]$order)
-  
-  # Microbiome PCA
-  meg_ordination(data_list = microbiome_analytic_data,
-                 data_names = microbiome_analytic_names,
-                 metadata = microbiome_metadata,
-                 sample_var = sample_column_id,
-                 hull_var = microbiome_exploratory_analyses[[v]]$exploratory_var,
-                 analysis_subset=microbiome_exploratory_analyses[[v]]$subsets,
-                 outdir = paste(graph_output_dir, 'Microbiome', microbiome_exploratory_analyses[[v]]$name,
-                                sep='/', collapse=''),
-                 data_type = 'Microbiome',
-                 method = 'PCA',
-                 factor_order= microbiome_exploratory_analyses[[v]]$order)
-}
 
 
 ####################################
@@ -161,29 +130,6 @@ for( v in 1:length(microbiome_exploratory_analyses) ) {
 }
 
 
-##########################
-## Statistical Analyses ##
-##########################
-
-for( a in 1:length(microbiome_statistical_analyses) ) {
-  meg_fitZig(data_list=microbiome_analytic_data,
-             data_names=microbiome_analytic_names,
-             metadata=microbiome_metadata,
-             zero_mod=model.matrix(~1 + log(libSize(microbiome))),
-             data_mod=microbiome_statistical_analyses[[a]]$model_matrix,
-             filter_min_threshold=0.15,
-             contrast_list=microbiome_statistical_analyses[[a]]$contrasts,
-             random_effect_var=microbiome_statistical_analyses[[a]]$random_effect,
-             outdir=paste(stats_output_dir, 'Microbiome', microbiome_statistical_analyses[[a]]$name,
-                          sep='/', collapse=''),
-             analysis_name=microbiome_statistical_analyses[[a]]$name,
-             analysis_subset=microbiome_statistical_analyses[[a]]$subsets,
-             data_type='Microbiome',
-             pval=0.99,
-             top_hits=1000)
-}
-
-
 ########################
 ## Output of matrices ##
 ########################
@@ -229,3 +175,35 @@ write.csv(make_sparse(microbiome_species, 'Species', c('Species')),
           row.names=T)
 write.table(microbiome_species, 'microbiome_matrices/normalized/microbiome_Species_Normalized.csv', sep=',', row.names=F, col.names=T)
 write.table(microbiome_species_raw, 'microbiome_matrices/raw/microbiome_Species_Raw.csv', sep=',', row.names=F, col.names=T)
+
+######################################
+## Exploratory Analyses: Ordination ##
+######################################
+
+for( v in 1:length(microbiome_exploratory_analyses) ) {
+  # Microbiome NMDS
+  meg_ordination(data_list = microbiome_analytic_data,
+                 data_names = microbiome_analytic_names,
+                 metadata = microbiome_metadata,
+                 sample_var = sample_column_id,
+                 hull_var = microbiome_exploratory_analyses[[v]]$exploratory_var,
+                 analysis_subset=microbiome_exploratory_analyses[[v]]$subsets,
+                 outdir = paste(graph_output_dir, 'Microbiome', microbiome_exploratory_analyses[[v]]$name,
+                                sep='/', collapse=''),
+                 data_type = 'Microbiome',
+                 method = 'NMDS',
+                 factor_order= microbiome_exploratory_analyses[[v]]$order)
+  
+  # Microbiome PCA
+  meg_ordination(data_list = microbiome_analytic_data,
+                 data_names = microbiome_analytic_names,
+                 metadata = microbiome_metadata,
+                 sample_var = sample_column_id,
+                 hull_var = microbiome_exploratory_analyses[[v]]$exploratory_var,
+                 analysis_subset=microbiome_exploratory_analyses[[v]]$subsets,
+                 outdir = paste(graph_output_dir, 'Microbiome', microbiome_exploratory_analyses[[v]]$name,
+                                sep='/', collapse=''),
+                 data_type = 'Microbiome',
+                 method = 'PCA',
+                 factor_order= microbiome_exploratory_analyses[[v]]$order)
+}
