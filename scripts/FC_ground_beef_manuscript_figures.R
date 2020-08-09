@@ -4,7 +4,13 @@ library(RColorBrewer)
 library(ggthemes)
 library(ggpubr)
 
-## Figure 1 - NMDS comparing AMR samples by unique sample (dilution and normal)
+#
+##
+###
+#### Figure 1 - NMDS comparing AMR samples by unique sample (dilution and normal)
+###
+##
+#
 
 
 
@@ -27,6 +33,7 @@ AMR_class_sum$sample = factor(AMR_class_sum$sample ,levels=c("Sample 1.1","Sampl
                                                              "Sample 9.1","Sample 9.2","Sample 10.1","Sample 10.2","Sample 11.1","Sample 11.2","Sample 12.1","Sample 12.2","Sample 13.1","Sample 13.2","Sample 14.1",
                                                              "Sample 14.2","Sample 15.1","Sample 15.2","Sample 16.1","Sample 16.2"))
 
+AMR_class_sum$Treatment = factor(AMR_class_sum$Treatment ,levels=c("RWA","CONV"))
 
 AMR_class_sum$Class <- AMR_class_sum$Name
 #AMR_class_sum[,percentage:= round(sum_class/total, digits=2) ,by=.(ID, Name) ] removes some with low proportions
@@ -73,6 +80,7 @@ microbiome_phylum_sum$Name = factor(microbiome_phylum_sum$Name ,levels=c("Low Ab
 microbiome_phylum_sum$Sample = factor(microbiome_phylum_sum$sample ,levels=c("Sample 1","Sample 2","Sample 3","Sample 4","Sample 5","Sample 6","Sample 7","Sample 8","Sample 9","Sample 10","Sample 11",
                                                                              "Sample 12","Sample 13","Sample 14","Sample 15","Sample 16"))
 
+microbiome_phylum_sum$Treatment = factor(microbiome_phylum_sum$Treatment ,levels=c("RWA","CONV"))
 
 
 
@@ -111,7 +119,7 @@ figure <- ggarrange(fig1_A, fig1_B,
 
 
 # Output jpeg figure
-jpeg("FC_ground_beef_manuscript_figures/Figure2-FC_meat_resistome_and_microbiome_composition_by_Treatment.jpeg", width =1850, height = 1250)
+jpeg("FC_ground_beef_manuscript_figures/Figure1-FC_meat_resistome_and_microbiome_composition_by_Treatment.jpeg", width =1850, height = 1250)
 figure
 dev.off()
 
@@ -229,4 +237,186 @@ legend("bottom", c("CONV","RWA"),x.intersp = .5, xpd = TRUE, horiz = TRUE, inset
 #
 
 # Use figure "graphs/Microbiome/Store/NMDS_Blinded_Store_Phylum.png"
+
+###################################################
+##                                               ##
+##             Supplemental figures              ##
+##                                               ##
+###################################################
+
+#
+##
+###
+#### Supplemental Figure 1 - Resistome ordination at the phylum level by dilution
+###
+##
+#
+
+
+#
+##
+###
+#### Supplemental Figure 1 - Heatmap
+###
+##
+#
+
+### Looking for clinically important AMR genes
+
+amr_group_check <- amr_group_raw[!group %in% snp_regex, ]
+important_AMR_regex = c('OXA',
+                        'SME',
+                        'sme',
+                        'IMI',
+                        'NDM',
+                        'GES',
+                        'KPC',
+                        'CPHA',
+                        'TEM',
+                        'SHV',
+                        'CTX',
+                        'CMY',
+                        'VGA',
+                        'VGAB',
+                        'VGAD',
+                        'VATA',
+                        'VATB',
+                        'VATC',
+                        'VATD',
+                        'VATE',
+                        'CFRA')
+
+amr_raw_important_AMR <- amr_group_check[group %in% important_AMR_regex, ]
+
+
+melted_important_AMR <- amr_melted_raw_analytic[ Level_ID =='Group' & Name %in% important_AMR_regex,  ][Normalized_Count > 0, .(num_samples= .N, Normalized_Count= sum(Normalized_Count),log_Normalized_Count= log(sum(Normalized_Count))),by=.(Name, Packaging_samples)]#[order(-sum_class )]
+melted_important_AMR[,.(sum_important_genes = sum(Normalized_Count))]
+
+ggplot(data = melted_important_AMR , aes(x = Packaging_samples, y = Name)) +
+  geom_tile(aes(fill = log(Normalized_Count))) +
+  scale_fill_gradient(low = "lightgrey", high = "steelblue") +
+  geom_text(aes(label = num_samples), size=5) +
+  labs(fill = "Number of samples", y = "Gene name", x = '') + 
+  theme(panel.background = element_blank())
+
+#ggsave("~/Dropbox/WRITING/FC_meat_2019/FC_meat_manuscript/FCmeat_figures/Supp_AMR_important_genes.jpeg", width = 30, height = 20, units = "cm")
+
+ggsave("FC_ground_beef_manuscript_figures/Supplemental_figures/Supplemental_Figure_1_AMR_important_genes.png", width = 30, height = 20, units = "cm")
+
+
+#
+##
+###
+#### Supplemental figure 2 - Microbiome at the Genus level by Packaging
+###
+##
+#
+
+microbiome_genus_sum <- microbiome_melted_analytic[Level_ID=="Genus", .(sum_genus= sum(Normalized_Count)),by=.(ID,sample, Name, Packaging, Treatment)][order(-Packaging )]
+microbiome_genus_sum[,total:= sum(sum_genus), by=.(ID)]
+microbiome_genus_sum[,percentage:= sum_genus/total ,by=.(ID, Name) ]
+# only keep taxa greater than 1%
+microbiome_genus_sum <- microbiome_genus_sum[percentage < .01, Name := 'Low Abundance Genus (< 1%)' ]
+microbiome_genus_sum[,total:= sum(sum_genus), by=.(ID)]
+microbiome_genus_sum[,percentage:= sum_genus/total ,by=.(ID, Name) ]
+
+microbiome_genus_sum$Name = droplevels(microbiome_genus_sum$Name)
+microbiome_genus_sum$Sample = factor(microbiome_genus_sum$sample ,levels=c("Sample 1","Sample 2","Sample 3","Sample 4","Sample 5","Sample 6","Sample 7","Sample 8","Sample 9","Sample 10","Sample 11",
+                                                                           "Sample 12","Sample 13","Sample 14","Sample 15","Sample 16"))
+
+microbiome_genus_sum$Genus <- microbiome_genus_sum$Name
+ggplot(microbiome_genus_sum, aes(x = Sample, y = percentage, fill = Genus)) +
+  geom_bar(stat = "identity")+
+  facet_wrap( ~ Packaging, scales='free',ncol = 2) +
+  #scale_fill_brewer(palette="Dark2") +
+  theme(
+    panel.grid.major=element_blank(),
+    panel.grid.minor=element_blank(),
+    strip.text.x=element_text(size=24),
+    strip.text.y=element_text(size=24, angle=0),
+    axis.text.x=element_text(size=24, angle=30, hjust=1),
+    axis.text.y=element_text(size=22),
+    axis.title=element_text(size=26),
+    legend.position="right",
+    panel.spacing=unit(0.1, "lines"),
+    plot.title=element_text(size=32, hjust=0.5),
+    legend.text=element_text(size=15),
+    legend.title=element_text(size=20),
+    panel.background = element_rect(fill = "white")
+  ) +
+  scale_fill_tableau("Tableau 20", direction = "1") +
+  xlab('') +
+  ylab('Relative abundance')
+
+ggsave("FC_ground_beef_manuscript_figures/Supplemental_figures/Supplemental_Figure_2_Microbiome_genus_by_packaging.png", width = 60, height = 40, units = "cm")
+
+
+#
+##
+###
+#### Supplemental Figure 3 - Microbiome at the phylum level by Packaging
+###
+##
+#
+
+ggplot(microbiome_phylum_sum, aes(x = Sample, y = percentage, fill = Phylum)) +
+  geom_bar(stat = "identity")+
+  facet_wrap( ~ Packaging, scales='free',ncol = 2) +
+  #scale_fill_brewer(palette="Dark2") +
+  theme(
+    panel.grid.major=element_blank(),
+    panel.grid.minor=element_blank(),
+    strip.text.x=element_text(size=24),
+    strip.text.y=element_text(size=24, angle=0),
+    axis.text.x=element_text(size=24, angle=30, hjust=1),
+    axis.text.y=element_text(size=22),
+    axis.title=element_text(size=26),
+    legend.position="right",
+    panel.spacing=unit(0.1, "lines"),
+    plot.title=element_text(size=32, hjust=0.5),
+    legend.text=element_text(size=15),
+    legend.title=element_text(size=20),
+    panel.background = element_rect(fill = "white")
+  ) +
+  scale_fill_tableau("Tableau 20", direction = "1") +
+  xlab('') +
+  ylab('Relative abundance')
+
+ggsave("FC_ground_beef_manuscript_figures/Supplemental_figures/Supplemental_Figure_3_Microbiome_phylum_by_packaging.png", width = 60, height = 40, units = "cm")
+
+
+#
+##
+###
+#### Supplemental Figure 4 - Resistome composition at the Class level by Packaging
+###
+##
+#
+
+
+ggplot(AMR_class_sum, aes(x = sample, y = percentage, fill = Class)) +
+  geom_bar(stat = "identity",colour = "black")+
+  facet_wrap( ~ Packaging, scales='free',ncol = 2) +
+  #scale_fill_brewer(palette="Dark2") +
+  theme(
+    panel.grid.major=element_blank(),
+    panel.grid.minor=element_blank(),
+    strip.text.x=element_text(size=24),
+    strip.text.y=element_text(size=24, angle=0),
+    axis.text.x=element_text(size=24, angle=30, hjust=1),
+    axis.text.y=element_text(size=22),
+    axis.title=element_text(size=26),
+    legend.position="right",
+    panel.spacing=unit(0.1, "lines"),
+    plot.title=element_text(size=32, hjust=0.5),
+    legend.text=element_text(size=15),
+    legend.title=element_text(size=20),
+    panel.background = element_rect(fill = "white")
+  ) +
+  xlab('') +
+  ylab('Relative abundance') +
+  scale_fill_tableau("Tableau 20", direction = -1)
+
+ggsave("FC_ground_beef_manuscript_figures/Supplemental_figures/Supplemental_Figure_4_Resistome_class_by_packaging.png", width = 60, height = 40, units = "cm")
+
 

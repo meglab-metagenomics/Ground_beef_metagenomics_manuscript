@@ -23,7 +23,15 @@ metaMDS_AMR_mech <- metaMDS(dist_AMR_mech, distance="none",symmetric=TRUE, tryma
 # Anosim testing
 anosim(metaMDS_AMR_class$points,pData(AMR_analytic_data[[1]])$Treatment, distance='euclidean')
 anosim(metaMDS_AMR_mech$points,pData(AMR_analytic_data[[2]])$Treatment, distance='euclidean')
-
+# Dilution
+anosim(metaMDS_AMR_class$points,pData(AMR_analytic_data[[1]])$Dilution, distance='euclidean')
+anosim(metaMDS_AMR_mech$points,pData(AMR_analytic_data[[2]])$Dilution, distance='euclidean')
+# Packaging
+anosim(metaMDS_AMR_class$points,pData(AMR_analytic_data[[1]])$Packaging, distance='euclidean')
+anosim(metaMDS_AMR_mech$points,pData(AMR_analytic_data[[2]])$Packaging, distance='euclidean')
+# Blinded Store
+anosim(metaMDS_AMR_class$points,pData(AMR_analytic_data[[1]])$Blinded_Store, distance='euclidean')
+anosim(metaMDS_AMR_mech$points,pData(AMR_analytic_data[[2]])$Blinded_Store, distance='euclidean')
 
 
 #
@@ -61,3 +69,20 @@ anosim(metaMDS_microbiome_order$points,pData(microbiome_analytic_data[[4]])$Trea
 anosim(metaMDS_microbiome_family$points,pData(microbiome_analytic_data[[5]])$Treatment, distance='euclidean')
 anosim(metaMDS_microbiome_genus$points,pData(microbiome_analytic_data[[6]])$Treatment, distance='euclidean')
 anosim(metaMDS_microbiome_species$points,pData(microbiome_analytic_data[[7]])$Treatment, distance='euclidean')
+
+# Blinded_Store
+anosim(metaMDS_microbiome_phylum$points,pData(microbiome_analytic_data[[2]])$Blinded_Store, distance='euclidean')
+anosim(metaMDS_microbiome_class$points,pData(microbiome_analytic_data[[3]])$Blinded_Store, distance='euclidean')
+anosim(metaMDS_microbiome_order$points,pData(microbiome_analytic_data[[4]])$Blinded_Store, distance='euclidean')
+anosim(metaMDS_microbiome_family$points,pData(microbiome_analytic_data[[5]])$Blinded_Store, distance='euclidean')
+anosim(metaMDS_microbiome_genus$points,pData(microbiome_analytic_data[[6]])$Blinded_Store, distance='euclidean')
+anosim(metaMDS_microbiome_species$points,pData(microbiome_analytic_data[[7]])$Blinded_Store, distance='euclidean')
+
+
+# Packaging
+anosim(metaMDS_microbiome_phylum$points,pData(microbiome_analytic_data[[2]])$Packaging, distance='euclidean')
+anosim(metaMDS_microbiome_class$points,pData(microbiome_analytic_data[[3]])$Packaging, distance='euclidean')
+anosim(metaMDS_microbiome_order$points,pData(microbiome_analytic_data[[4]])$Packaging, distance='euclidean')
+anosim(metaMDS_microbiome_family$points,pData(microbiome_analytic_data[[5]])$Packaging, distance='euclidean')
+anosim(metaMDS_microbiome_genus$points,pData(microbiome_analytic_data[[6]])$Packaging, distance='euclidean')
+anosim(metaMDS_microbiome_species$points,pData(microbiome_analytic_data[[7]])$Packaging, distance='euclidean')

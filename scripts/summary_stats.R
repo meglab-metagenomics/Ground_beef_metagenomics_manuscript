@@ -7,46 +7,11 @@ library(tidyr)
 options(scipen = 999) # to decrease the use of scientific notation
 
 
-### Looking for clinically important AMR genes
+full_microbiome_counts <- as.data.table(MRcounts(microbiome), keep.rownames = TRUE)
+names(full_microbiome_counts)[names(full_microbiome_counts) == "rn"] <- "feature"
+setkey(full_microbiome_counts, feature)
 
-amr_group_check <- amr_group_raw[!group %in% snp_regex, ]
-important_AMR_regex = c('OXA',
-                        'SME',
-                        'sme',
-                        'IMI',
-                        'NDM',
-                        'GES',
-                        'KPC',
-                        'CPHA',
-                        'TEM',
-                        'SHV',
-                        'CTX',
-                        'CMY',
-                        'VGA',
-                        'VGAB',
-                        'VGAD',
-                        'VATA',
-                        'VATB',
-                        'VATC',
-                        'VATD',
-                        'VATE',
-                        'CFRA')
-
-amr_raw_important_AMR <- amr_group_check[group %in% important_AMR_regex, ]
-
-View(amr_raw_important_AMR[group %in% important_AMR_regex,  ])
-
-melted_important_AMR <- amr_melted_raw_analytic[ Level_ID =='Group' & Name %in% important_AMR_regex,  ][Normalized_Count > 0, .(num_samples= .N, Normalized_Count= sum(Normalized_Count),log_Normalized_Count= log(sum(Normalized_Count))),by=.(Name, Packaging_samples)]#[order(-sum_class )]
-melted_important_AMR[,.(sum_important_genes = sum(Normalized_Count))]
-
-ggplot(data = melted_important_AMR , aes(x = Packaging_samples, y = Name)) +
-  geom_tile(aes(fill = log(Normalized_Count))) +
-  scale_fill_gradient(low = "white", high = "steelblue") +
-  geom_text(aes(label = num_samples), size=5) 
-
-#ggsave("~/Dropbox/WRITING/FC_meat_2019/FC_meat_manuscript/FCmeat_figures/Supp_AMR_important_genes.jpeg", width = 30, height = 20, units = "cm")
-
-
+#write.csv(full_microbiome_counts[microbiome_taxonomy],"full_microbiome_counts.csv",row.names = FALSE)
 
 ##
 ###
@@ -83,7 +48,8 @@ setkey(gene_counts,ID)
 
 ## Total AMR percentage for study
 total_amr_percentage <- gene_counts[,.(class_sum = sum(Normalized_Count)), by= .(class) ][,total:=sum(class_sum)][,class_percentage:= class_sum/total * 100]
-total_amr_percentage
+
+total_amr_percentage[, sum(class_percentage)]
 
 ## Mechanism proportion by class
 mech_percentage_byclass <- gene_counts[,.(class_sum = sum(Normalized_Count)), by= .(mechanism,class) ][,class_percentage:= class_sum/sum(class_sum) * 100 , by = .(class)]
@@ -129,32 +95,52 @@ AMR_classes_percent_bygroup <- gene_counts[,.(class_sum = sum(Normalized_Count))
 
 ## Microbiome and resistome Total, mean, std, and median counts per sample
 
-# Microbiome
-micro_count_summary_per_sample = microbiome_melted_analytic[Level_ID=="Phylum", .(total_counts = sum(Normalized_Count), mean_counts = mean(Normalized_Count), std_dev_counts = sd(Normalized_Count)), by = ID]
-micro_count_summary_project = micro_count_summary_per_sample[,.(total_reads = sum(total_counts),mean_per_sample=mean(total_counts), std_dev_counts= sd(total_counts))]
+# Microbiome mapped reads
+micro_count_summary_per_sample = microbiome_melted_raw_analytic[Level_ID=="Domain", .(total_counts = sum(Normalized_Count), mean_counts = mean(Normalized_Count), std_dev_counts = sd(Normalized_Count)), by = ID]
+micro_count_summary_project = micro_count_summary_per_sample[,.(total_reads = sum(total_counts),mean_per_sample=mean(total_counts), std_dev_counts= sd(total_counts),min_per_sample=min(total_counts),max_per_sample=max(total_counts))]
 micro_count_summary_project
 
+# Number of features
+microbiome
+microbiome_analytic_data
 
+# Calculate taxa classification proportions
+microbiome_melted_raw_analytic <- as.data.table(microbiome_melted_raw_analytic)
+
+
+taxa_level_counts <- microbiome_melted_raw_analytic[Normalized_Count > 0 ,.(sum_total_level = sum(Normalized_Count), count_uniq = uniqueN(Name)), by = .(Level_ID)]
+taxa_level_counts[,proportion_of_total := sum_total_level/2496913]
+
+taxa_level_counts
+
+## Taxa proportion of counts at each level by Treatment
+micro_counts <- microbiome_melted_analytic[,.(sum_taxa = sum(Normalized_Count) ), by = .(Level_ID, Treatment)]
+micro_counts[Treatment =="RWA",percentage := (sum_taxa/1166527.90) * 100, by = .(Level_ID)]
+micro_counts[Treatment =="CONV",percentage := (sum_taxa/1190749.69) * 100, by = .(Level_ID)]
+micro_counts
+
+
+
+
+# Group by Order
 order_counts = microbiome_melted_analytic[Level_ID=='Order',]
 setkey(order_counts,Name)
-
-
 order_annotations = microbiome_taxonomy[,id := NULL]
 setkey(order_annotations, Order)  # Data tables are SQL objects with optional primary keys
 order_annotations <- unique(order_annotations, by = key(order_annotations))
-
 setkey(order_annotations,Order)
 order_counts <- order_counts[order_annotations][ID != "NA"]
 setkey(order_counts,ID)
 
 ## Total AMR percentage for study
-total_microbiome_percentage <- order_counts[,.(Order_sum = sum(Normalized_Count)), by= .(Name) ][,total:=sum(Order_sum)][,Order_percentage:= signif(Order_sum/total * 100,digits=3)]
-
 microbiome_percentage_perPhylum <- order_counts[,.(sum_hits = sum(Normalized_Count)), by= .(Phylum, Class) ][,Class_percentage:= sum_hits/sum(sum_hits) * 100, by = .(Phylum)]
+microbiome_percentage_perPhylum
 
-total_phylum <- microbiome_melted_analytic[Level_ID=="Phylum"][,.(sum_phylum = sum(Normalized_Count)), by = Name][,total := sum(sum_phylum)][,proportion := signif(sum_phylum/total * 100,digits=3) , by = Name]
-total_class <- microbiome_melted_analytic[Level_ID=="Class"][,.(sum_class = sum(Normalized_Count)), by = Name][,total := sum(sum_class)][,proportion := signif(sum_class/total * 100,digits=3), by = Name]
-total_order <- microbiome_melted_analytic[Level_ID=="Order"][,.(sum_order = sum(Normalized_Count)), by = Name][,total := sum(sum_order)][,proportion := signif(sum_order/total * 100,digits=3), by = Name]
+total_phylum <- microbiome_melted_analytic[Level_ID=="Phylum"][,.(sum_phylum = sum(Normalized_Count)), by = Name][,total := sum(sum_phylum)][,percentage := sum_phylum/total * 100 , by = Name]
+total_phylum 
+
+total_class <- microbiome_melted_analytic[Level_ID=="Class"][,.(sum_class = sum(Normalized_Count)), by = Name][,total := sum(sum_class)][,percentage := sum_class/total * 100, by = Name]
+total_order <- microbiome_melted_analytic[Level_ID=="Order"][,.(sum_order = sum(Normalized_Count)), by = Name][,total := sum(sum_order)][,percentage := sum_order/total * 100, by = Name]
 
 
 
