@@ -186,6 +186,8 @@ microbiome_raw_analytic_names <- c('Domain', 'Phylum', 'Class', 'Order', 'Family
 
 
 
+
+
 for( l in 1:length(microbiome_analytic_data) ) {
   sample_idx <- match(colnames(MRcounts(microbiome_analytic_data[[l]])), microbiome_metadata[[sample_column_id]])
   pData(microbiome_analytic_data[[l]]) <- data.frame(
@@ -203,6 +205,8 @@ for( l in 1:length(microbiome_raw_analytic_data) ) {
   fData(microbiome_raw_analytic_data[[l]]) <- data.frame(Feature=rownames(MRcounts(microbiome_raw_analytic_data[[l]])))
   rownames(fData(microbiome_raw_analytic_data[[l]])) <- rownames(MRcounts(microbiome_raw_analytic_data[[l]]))
 }
+
+
 
 # Microbiome counts
 new_microbiome_metadata <- as.data.table(pData(microbiome_raw_analytic_data[[1]]), keep.rownames = TRUE)
@@ -234,5 +238,4 @@ new_microbiome_metadata$microbiome_species_Richness = specnumber(t(MRcounts(micr
 new_microbiome_metadata$microbiome_species_Shannon = vegan::diversity(t(MRcounts(microbiome_raw_analytic_data[[7]])))
 
 microbiome_metadata <- new_microbiome_metadata
-
 

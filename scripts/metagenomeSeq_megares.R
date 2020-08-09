@@ -273,24 +273,24 @@ AMR_raw_analytic_data <- c(amr_class_raw_analytic,
 AMR_raw_analytic_names <- c('Class', 'Mechanism', 'Group', 'Gene')
 
 
+
 for( l in 1:length(AMR_analytic_data) ) {
-    sample_idx <- match(colnames(MRcounts(AMR_analytic_data[[l]])), metadata[[sample_column_id]])
-    pData(AMR_analytic_data[[l]]) <- data.frame(
-        metadata[sample_idx, .SD, .SDcols=!sample_column_id])
-    rownames(pData(AMR_analytic_data[[l]])) <- metadata[sample_idx, .SD, .SDcols=sample_column_id][[sample_column_id]]
-    fData(AMR_analytic_data[[l]]) <- data.frame(Feature=rownames(MRcounts(AMR_analytic_data[[l]])))
-    rownames(fData(AMR_analytic_data[[l]])) <- rownames(MRcounts(AMR_analytic_data[[l]]))
+  sample_idx <- match(colnames(MRcounts(AMR_analytic_data[[l]])), metadata[[sample_column_id]])
+  pData(AMR_analytic_data[[l]]) <- data.frame(
+    metadata[sample_idx, .SD, .SDcols=!sample_column_id])
+  rownames(pData(AMR_analytic_data[[l]])) <- metadata[sample_idx, .SD, .SDcols=sample_column_id][[sample_column_id]]
+  fData(AMR_analytic_data[[l]]) <- data.frame(Feature=rownames(MRcounts(AMR_analytic_data[[l]])))
+  rownames(fData(AMR_analytic_data[[l]])) <- rownames(MRcounts(AMR_analytic_data[[l]]))
 }
 
 for( l in 1:length(AMR_raw_analytic_data) ) {
-    sample_idx <- match(colnames(MRcounts(AMR_raw_analytic_data[[l]])), metadata[[sample_column_id]])
-    pData(AMR_raw_analytic_data[[l]]) <- data.frame(
-        metadata[sample_idx, .SD, .SDcols=!sample_column_id])
-    rownames(pData(AMR_raw_analytic_data[[l]])) <- metadata[sample_idx, .SD, .SDcols=sample_column_id][[sample_column_id]]
-    fData(AMR_raw_analytic_data[[l]]) <- data.frame(Feature=rownames(MRcounts(AMR_raw_analytic_data[[l]])))
-    rownames(fData(AMR_raw_analytic_data[[l]])) <- rownames(MRcounts(AMR_raw_analytic_data[[l]]))
+  sample_idx <- match(colnames(MRcounts(AMR_raw_analytic_data[[l]])), metadata[[sample_column_id]])
+  pData(AMR_raw_analytic_data[[l]]) <- data.frame(
+    metadata[sample_idx, .SD, .SDcols=!sample_column_id])
+  rownames(pData(AMR_raw_analytic_data[[l]])) <- metadata[sample_idx, .SD, .SDcols=sample_column_id][[sample_column_id]]
+  fData(AMR_raw_analytic_data[[l]]) <- data.frame(Feature=rownames(MRcounts(AMR_raw_analytic_data[[l]])))
+  rownames(fData(AMR_raw_analytic_data[[l]])) <- rownames(MRcounts(AMR_raw_analytic_data[[l]]))
 }
-
 
 ## Add diversity values to metadata object
 ## Resistome counts
@@ -309,6 +309,4 @@ new_AMR_metadata$AMR_mech_Richness = specnumber(t(MRcounts(AMR_raw_analytic_data
 new_AMR_metadata$AMR_mech_Shannon = diversity(t(MRcounts(AMR_raw_analytic_data[[2]])))
 
 metadata <- new_AMR_metadata
-
-
 
