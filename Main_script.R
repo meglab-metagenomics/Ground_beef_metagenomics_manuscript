@@ -82,14 +82,6 @@ AMR_exploratory_analyses = list(
     subsets = list(),
     exploratory_var = 'ID',
     order = ''
-  ),  
-  # Analysis 1
-  # Description: 
-  list(
-    name = 'City',
-    subsets = list(),
-    exploratory_var = 'City',
-    order = ''
   ),
   # Analysis 2
   # Description:
@@ -135,16 +127,8 @@ microbiome_exploratory_analyses = list(
     subsets = list(),
     exploratory_var = 'ID',
     order = ''
-  ),  
-  # Analysis 1
-  # Description: 
-  list(
-    name = 'City',
-    subsets = list(),
-    exploratory_var = 'City',
-    order = ''
   ),
-  # Analysis 2
+  # Analysis Treatment
   # Description:
   list(
     name = 'Treatment',
@@ -152,7 +136,7 @@ microbiome_exploratory_analyses = list(
     exploratory_var = 'Treatment',
     order = ''
   ),
-  # Analysis 3
+  # Analysis Packaging
   # Description:
   list(
     name = 'Packaging',
