@@ -25,7 +25,7 @@ sample_column_id = 'ID'
 ## of the database as the file you used in the AmrPlusPlus pipeline, i.e. the headers
 ## must match between the annotation file and the database file.
 
-# Where is the metadata file stored on your machine?
+# Where is the metadata file stored?
 amr_metadata_filepath = 'data/resistome_amr++/AMR_metadata.csv'
 amr_count_matrix_filepath = 'data/resistome_amr++/strict_SNP_confirmed_AMR_analytic_matrix.csv'
 # Name of the megares annotation file used for this project
@@ -35,14 +35,14 @@ megares_annotation_filename = 'data/resistome_amr++/megares_annotations_v1.03.cs
 ## Microbiome - 16S or kraken? ##
 #################################
 
-# Where is the metadata file for the microbiome samples stored on your machine?
+# Where is the metadata file for the microbiome samples stored?
 microbiome_temp_metadata_file = "data/microbiome-qiime2/Microbiome_metadata.csv"
 
 # Location of results extracted from qiime2
 biom_file <- "data/microbiome-qiime2/otu_table_json.biom"
 tre_file <- "data/microbiome-qiime2/tree.nwk"
-tax_fasta <- "data/microbiome-qiime2/aligned-dna-sequences.fasta" #https://data.qiime2.org/2017.6/tutorials/training-feature-classifiers/85_otus.fasta
-taxa_file <- "data/microbiome-qiime2/taxonomy.tsv" #https://data.qiime2.org/2017.6/tutorials/training-feature-classifiers/85_otu_taxonomy.txt
+tax_fasta <- "data/microbiome-qiime2/aligned-dna-sequences.fasta"
+taxa_file <- "data/microbiome-qiime2/taxonomy.tsv"
 
 
 ###################
@@ -182,33 +182,6 @@ AMR_statistical_analyses = list(
   # Analysis 2
   # Description: 
   list(
-    name = 'Treatment_w_store',
-    subsets = list(),
-    model_matrix = '~ 0 + Treatment + Blinded_Store',
-    contrasts = list('TreatmentCONV - TreatmentRWA'),
-    random_effect = NA
-  ),
-  # Analysis 3
-  # Description: 
-  list(
-    name = 'Treatment_w_Dilution',
-    subsets = list(),
-    model_matrix = '~ 0 + Treatment + Dilution',
-    contrasts = list('TreatmentCONV - TreatmentRWA'),
-    random_effect = NA
-  ),
-  # Analysis 4
-  # Description: 
-  list(
-    name = 'Treatment_w_store_packaging',
-    subsets = list(),
-    model_matrix = '~ 0 + Treatment + Packaging + Blinded_Store',
-    contrasts = list('TreatmentCONV - TreatmentRWA'),
-    random_effect = NA
-  ),
-  # Analysis 5
-  # Description: 
-  list(
     name = 'Dilution',
     subsets = list(),
     model_matrix = '~ 0 + Dilution',
@@ -224,24 +197,6 @@ microbiome_statistical_analyses = list(
     name = 'Treatment',
     subsets = list(),
     model_matrix = '~ 0 + Treatment ',
-    contrasts = list('TreatmentCONV - TreatmentRWA'),
-    random_effect = NA
-  ),
-  # Analysis 2
-  # Description: 
-  list(
-    name = 'Treatment_w_store',
-    subsets = list(),
-    model_matrix = '~ 0 + Treatment + Blinded_Store',
-    contrasts = list('TreatmentCONV - TreatmentRWA'),
-    random_effect = NA
-  ),
-  # Analysis 3
-  # Description: 
-  list(
-    name = 'Treatment_w_store_packaging',
-    subsets = list(),
-    model_matrix = '~ 0 + Treatment + Blinded_Store + Packaging',
     contrasts = list('TreatmentCONV - TreatmentRWA'),
     random_effect = NA
   )
